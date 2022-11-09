@@ -1,5 +1,6 @@
 package com.kyc.emailtest.service;
 
+import com.kyc.emailtest.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -18,6 +19,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class EmailService {
     private final JavaMailSender mailSender;
+    private final RedisUtil redisUtil;
     TemplateEngine templateEngine = new TemplateEngine();
     ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
 
@@ -58,20 +60,34 @@ public class EmailService {
 
     private MimeMessage createEmailForm(String email) throws MessagingException {
 
+        String authCode = createdCode();
+
         MimeMessage message = mailSender.createMimeMessage();
         message.addRecipients(MimeMessage.RecipientType.TO, email);
         message.setSubject("안녕하세요 인증번호입니다.");
         message.setFrom(configEmail);
-        message.setText(setContext(createdCode()), "utf-8", "html");
+        message.setText(setContext(authCode), "utf-8", "html");
+
+        redisUtil.setDataExpire(email, authCode, 60 * 3L);
 
         return message;
     }
 
+
     // 메일 보내기
     public void sendEmail(String toEmail) throws MessagingException, UnsupportedEncodingException {
+        if (redisUtil.existData(toEmail)) {
+            redisUtil.deleteData(toEmail);
+        }
+
         MimeMessage emailForm = createEmailForm(toEmail);
 
         mailSender.send(emailForm);
+    }
+
+    // 코드 검증
+    public String verifyEmailCode(String email, String code) {
+        return redisUtil.getData(email).equals(code) ? "일치합니다." : "일치하지 않습니다";
     }
 
 

@@ -23,7 +23,7 @@ public class EmailController {
 
     @PostMapping("/{email_addr}/authcode")
     @ResponseBody
-    public String sendEmailAndCode(@PathVariable String email_addr, @RequestBody String authCode) {
-        return "email: " + email_addr + " and code: " + authCode;
+    public String sendEmailAndCode(@PathVariable String email_addr, @RequestBody String code) {
+        return emailService.verifyEmailCode(email_addr, code);
     }
 }
