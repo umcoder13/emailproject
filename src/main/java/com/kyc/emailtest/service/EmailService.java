@@ -18,8 +18,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class EmailService {
     private final JavaMailSender mailSender;
-    TemplateEngine templateEngine = new TemplateEngine();
-    ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+
 
 
     @Value("${spring.mail.username}")
@@ -40,6 +39,8 @@ public class EmailService {
 
     private String setContext(String code) {
         Context context = new Context();
+        TemplateEngine templateEngine = new TemplateEngine();
+        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
         context.setVariable("code", code);
 
 
