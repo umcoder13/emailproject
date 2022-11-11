@@ -1,11 +1,14 @@
 package com.kyc.emailtest.entity;
 
+import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
+@Getter
 public class EmailUser {
 
     @Id
