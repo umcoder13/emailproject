@@ -12,7 +12,6 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
 @Service
@@ -20,8 +19,7 @@ import java.util.Random;
 public class EmailService {
     private final JavaMailSender mailSender;
     private final RedisUtil redisUtil;
-    TemplateEngine templateEngine = new TemplateEngine();
-    ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+
 
 
     @Value("${spring.mail.username}")
@@ -42,6 +40,9 @@ public class EmailService {
 
     private String setContext(String code) {
         Context context = new Context();
+        TemplateEngine templateEngine = new TemplateEngine();
+        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+
         context.setVariable("code", code);
 
 
@@ -68,14 +69,14 @@ public class EmailService {
         message.setFrom(configEmail);
         message.setText(setContext(authCode), "utf-8", "html");
 
-        redisUtil.setDataExpire(email, authCode, 60 * 3L);
+        redisUtil.setDataExpire(email, authCode, 60 * 30L);
 
         return message;
     }
 
 
     // 메일 보내기
-    public void sendEmail(String toEmail) throws MessagingException, UnsupportedEncodingException {
+    public void sendEmail(String toEmail) throws MessagingException {
         if (redisUtil.existData(toEmail)) {
             redisUtil.deleteData(toEmail);
         }
@@ -86,8 +87,13 @@ public class EmailService {
     }
 
     // 코드 검증
-    public String verifyEmailCode(String email, String code) {
-        return redisUtil.getData(email).equals(code) ? "일치합니다." : "일치하지 않습니다";
+    public Boolean verifyEmailCode(String email, String code) {
+        String codeFoundByEmail = redisUtil.getData(email);
+        System.out.println(codeFoundByEmail);
+        if (codeFoundByEmail == null) {
+            return false;
+        }
+        return codeFoundByEmail.equals(code);
     }
 
 
