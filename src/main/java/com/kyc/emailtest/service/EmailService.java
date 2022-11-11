@@ -14,7 +14,6 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.io.UnsupportedEncodingException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -65,21 +64,21 @@ public class EmailService {
 
     // 메일 반환
     private MimeMessage createEmailForm(String email) throws MessagingException {
-        String authCode = setContext(createdCode());
+        String authCode = createdCode();
 
         MimeMessage message = mailSender.createMimeMessage();
 
         message.addRecipients(MimeMessage.RecipientType.TO, email);
         message.setSubject("안녕하세요 인증번호입니다.");
         message.setFrom(configEmail);
-        message.setText((authCode), "utf-8", "html");
+        message.setText(setContext(authCode), "utf-8", "html");
 
         emailRepository.save(EmailUser.createEmailUser(email, authCode));
         return message;
     }
 
     // 메일 보내기
-    public void sendEmail(String toEmail) throws MessagingException, UnsupportedEncodingException {
+    public void sendEmail(String toEmail) throws MessagingException {
         MimeMessage emailForm = createEmailForm(toEmail);
 
         mailSender.send(emailForm);
