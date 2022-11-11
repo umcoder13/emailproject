@@ -1,6 +1,9 @@
 package com.kyc.emailtest.service;
 
+import com.kyc.emailtest.entity.EmailUser;
+import com.kyc.emailtest.repository.EmailRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -12,18 +15,21 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailService {
     private final JavaMailSender mailSender;
-
-
-
+    private final EmailRepository emailRepository;
     @Value("${spring.mail.username}")
     private String configEmail;
 
+    // 난수 생성
     private String createdCode() {
         int leftLimit = 48; // number '0'
         int rightLimit = 122; // alphabet 'z'
@@ -37,10 +43,12 @@ public class EmailService {
                 .toString();
     }
 
+    // 타임리프 template 생성
     private String setContext(String code) {
         Context context = new Context();
         TemplateEngine templateEngine = new TemplateEngine();
         ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+
         context.setVariable("code", code);
 
 
@@ -56,15 +64,17 @@ public class EmailService {
 
 
     // 메일 반환
-
     private MimeMessage createEmailForm(String email) throws MessagingException {
+        String authCode = setContext(createdCode());
 
         MimeMessage message = mailSender.createMimeMessage();
+
         message.addRecipients(MimeMessage.RecipientType.TO, email);
         message.setSubject("안녕하세요 인증번호입니다.");
         message.setFrom(configEmail);
-        message.setText(setContext(createdCode()), "utf-8", "html");
+        message.setText((authCode), "utf-8", "html");
 
+        emailRepository.save(EmailUser.createEmailUser(email, authCode));
         return message;
     }
 
@@ -75,5 +85,25 @@ public class EmailService {
         mailSender.send(emailForm);
     }
 
+    // 메일 검증
+    public boolean verifyEmailCode(String email, String code, LocalDateTime time) {
+        List<EmailUser> emailUsers = emailRepository.findAllByEmail(email);
+
+        if(emailUsers.size() == 0) {
+            return false;
+        }
+
+        EmailUser latelyUser = emailUsers.get(emailUsers.size() - 1);
+        long seconds = Duration.between(latelyUser.getCreatedAt(), time).getSeconds();
+        log.info("시간의 차이는? " + seconds);
+        if(seconds > 600L) {
+            return false;
+        }
+
+
+        log.info("메일, 시간 통과");
+        return latelyUser.getAuthCode().equals(code);
+
+    }
 
 }
