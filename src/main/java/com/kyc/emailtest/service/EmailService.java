@@ -12,6 +12,10 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Random;
 
 @Service
@@ -19,8 +23,6 @@ import java.util.Random;
 public class EmailService {
     private final JavaMailSender mailSender;
     private final RedisUtil redisUtil;
-
-
 
     @Value("${spring.mail.username}")
     private String configEmail;
@@ -44,7 +46,6 @@ public class EmailService {
         ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
 
         context.setVariable("code", code);
-
 
         templateResolver.setPrefix("templates/");
         templateResolver.setSuffix(".html");
@@ -74,7 +75,6 @@ public class EmailService {
         return message;
     }
 
-
     // 메일 보내기
     public void sendEmail(String toEmail) throws MessagingException {
         if (redisUtil.existData(toEmail)) {
@@ -89,12 +89,21 @@ public class EmailService {
     // 코드 검증
     public Boolean verifyEmailCode(String email, String code) {
         String codeFoundByEmail = redisUtil.getData(email);
-        System.out.println(codeFoundByEmail);
         if (codeFoundByEmail == null) {
             return false;
         }
         return codeFoundByEmail.equals(code);
     }
 
+    public String makeMemberId(String email) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.update(email.getBytes());
+        md.update(LocalDateTime.now().toString().getBytes());
+        StringBuilder builder = new StringBuilder();
+        for (byte b: md.digest()) {
+            builder.append(String.format("%02x", b));
+        }
+        return builder.toString();
+    }
 
 }
