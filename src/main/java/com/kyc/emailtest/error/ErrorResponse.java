@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import javax.mail.MessagingException;
 import javax.validation.ConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +59,8 @@ public class ErrorResponse {
                 .collect(Collectors.toList());
         return new ErrorResponse(ErrorCode.INVALID_QUERY_VALUE, errors);
     }
+
+
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)

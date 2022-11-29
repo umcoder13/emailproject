@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.mail.MessagingException;
 import javax.validation.ConstraintViolationException;
 
 @Slf4j
@@ -36,5 +37,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
     }
 
+    /*
+    @ExceptionHandler(MessagingException.class)
+    protected ResponseEntity<ErrorResponse> handleMessagingException(final MessagingException e) {
+        log.error("Messaging Exception!", e);
+        final ErrorResponse response = ErrorResponse.of();
+    }
+
+     */
 
 }

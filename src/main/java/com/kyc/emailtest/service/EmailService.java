@@ -87,12 +87,14 @@ public class EmailService {
     }
 
     // 코드 검증
-    public Boolean verifyEmailCode(String email, String code) {
+    public void verifyEmailCode(String email, String code) {
         String codeFoundByEmail = redisUtil.getData(email);
         if (codeFoundByEmail == null) {
-            return false;
+            throw new EmailHistoryNotExistException(email);
         }
-        return codeFoundByEmail.equals(code);
+        if(!codeFoundByEmail.equals(code)) {
+            throw new AuthCodeNotMatchException(email);
+        }
     }
 
     public String makeMemberId(String email) throws NoSuchAlgorithmException {

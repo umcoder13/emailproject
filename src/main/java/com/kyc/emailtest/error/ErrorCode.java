@@ -9,11 +9,11 @@ public enum ErrorCode {
     INVALID_QUERY_VALUE(400, "C002", "Invalid Query Value"),
     ENTITY_NOT_FOUND(404, "C001", "Entity not Found"),
 
-    EMAIL_DUPLICATION(401, "M001", "Email is Duplication"),
+    EMAIL_DUPLICATION(401, "M001", "Email is Already Signed Up"),
     EMAIL_NOT_VERIFIED(404, "M002", "Email is not Verified"),
 
     EMAIL_HISTORY_NOT_EXIST(404, "M003", "Email History is not Exist"),
-    AUTH_CODE_DOES_NOT_MATCH(401, "A001", "Authentication Code does not Match"),
+    AUTH_CODE_NOT_MATCH(401, "A001", "Authentication Code does not Match"),
     AUTH_CODE_EXPIRED(401, "A002", "Authentication Code has Expired");
 
     private final String code;

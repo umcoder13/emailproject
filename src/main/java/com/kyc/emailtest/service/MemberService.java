@@ -12,9 +12,9 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
-    public void verifyEmailExist(String email) {
+    public void verifyEmailAlreadySignedUp(String email) {
         if(memberRepository.existsMemberByEmail(email)) {
-            throw new EmailDuplicationException(email);
+            throw new EmailAlreadySignedUpException(email);
         }
     }
 }

@@ -2,7 +2,7 @@ package com.kyc.emailtest;
 
 import com.kyc.emailtest.entity.Member;
 import com.kyc.emailtest.repository.MemberRepository;
-import com.kyc.emailtest.service.EmailDuplicationException;
+import com.kyc.emailtest.service.EmailAlreadySignedUpException;
 import com.kyc.emailtest.service.MemberService;
 import com.kyc.emailtest.util.RedisUtil;
 import org.junit.jupiter.api.Assertions;
@@ -65,8 +65,8 @@ class EmailtestApplicationTests {
         memberRepository.save(member);
 
         //then
-        Assertions.assertThrows(EmailDuplicationException.class, () -> {
-            memberService.verifyEmailExist(email);
+        Assertions.assertThrows(EmailAlreadySignedUpException.class, () -> {
+            memberService.verifyEmailAlreadySignedUp(email);
         });
 
 
