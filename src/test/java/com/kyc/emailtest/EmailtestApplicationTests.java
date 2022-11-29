@@ -1,5 +1,7 @@
 package com.kyc.emailtest;
 
+import com.kyc.emailtest.entity.Member;
+import com.kyc.emailtest.repository.MemberRepository;
 import com.kyc.emailtest.util.RedisUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,6 +16,9 @@ class EmailtestApplicationTests {
 
     @Autowired
     private RedisUtil redisUtil;
+
+    @Autowired
+    private MemberRepository memberRepository;
 
 
     @Test
@@ -30,6 +35,19 @@ class EmailtestApplicationTests {
         Assertions.assertFalse(redisUtil.existData("test1@test.com"));
         Assertions.assertEquals(redisUtil.getData(email), "aaa111");
 
+    }
+
+    @Test
+    public void jpaTest() throws Exception {
+        //given
+        String email = "test@test.com";
+
+        //when
+        Member member = new Member(email);
+        memberRepository.save(member);
+
+        //then
+        Assertions.assertTrue(memberRepository.existsMemberByEmail(email));
     }
 
 }
