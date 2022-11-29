@@ -14,7 +14,7 @@ public class MemberService {
 
     public void verifyEmailExist(String email) {
         if(memberRepository.existsMemberByEmail(email)) {
-            log.error("이미 가입되어 있습니다.");
+            throw new EmailDuplicationException(email);
         }
     }
 }

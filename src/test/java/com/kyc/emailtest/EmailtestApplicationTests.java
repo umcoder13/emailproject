@@ -2,6 +2,8 @@ package com.kyc.emailtest;
 
 import com.kyc.emailtest.entity.Member;
 import com.kyc.emailtest.repository.MemberRepository;
+import com.kyc.emailtest.service.EmailDuplicationException;
+import com.kyc.emailtest.service.MemberService;
 import com.kyc.emailtest.util.RedisUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,9 @@ class EmailtestApplicationTests {
 
     @Autowired
     private MemberRepository memberRepository;
+
+    @Autowired
+    private MemberService memberService;
 
 
     @Test
@@ -50,4 +55,20 @@ class EmailtestApplicationTests {
         Assertions.assertTrue(memberRepository.existsMemberByEmail(email));
     }
 
+    @Test
+    public void emailTest() throws Exception {
+        //given
+        String email = "test1@test.com";
+
+        //when
+        Member member = new Member(email);
+        memberRepository.save(member);
+
+        //then
+        Assertions.assertThrows(EmailDuplicationException.class, () -> {
+            memberService.verifyEmailExist(email);
+        });
+
+
+    }
 }
